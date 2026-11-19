@@ -1,4 +1,7 @@
 name: Build and push Docker images
+# Must match the PROBE_REF default in the Dockerfile.
+env:
+  PROBE_REF: 9eba070abb1db98890b45e5e531765ac8a11ed97
 jobs:
   build-and-push:
     if: needs.check-changes.outputs.should_build == 'true'
@@ -17,11 +20,6 @@ jobs:
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v4
         with:
@@ -41,23 +39,16 @@ jobs:
           build-args: |
             REVISION=${{ github.sha }}
             VERSION=${{ needs.check-changes.outputs.probe_version }}
+            PROBE_REF=${{ env.PROBE_REF }}
           tags: |
-            ctassisf/ripe-atlas-alpine:${{ needs.check-changes.outputs.probe_version }}
-            ctassisf/ripe-atlas-alpine:latest
-            ghcr.io/ctassisf/ripe-atlas-alpine:${{ needs.check-changes.outputs.probe_version }}
-            ghcr.io/ctassisf/ripe-atlas-alpine:latest
-      - name: Attest build provenance for Docker Hub
-        uses: actions/attest@v4
-        with:
-          push-to-registry: true
-          subject-digest: ${{ steps.build.outputs.digest }}
-          subject-name: index.docker.io/ctassisf/ripe-atlas-alpine
+            ghcr.io/${{ github.repository_owner }}/ripe-atlas-alpine:${{ needs.check-changes.outputs.probe_version }}
+            ghcr.io/${{ github.repository_owner }}/ripe-atlas-alpine:latest
       - name: Attest build provenance for GitHub Container Registry
         uses: actions/attest@v4
         with:
           push-to-registry: true
           subject-digest: ${{ steps.build.outputs.digest }}
-          subject-name: ghcr.io/ctassisf/ripe-atlas-alpine
+          subject-name: ghcr.io/${{ github.repository_owner }}/ripe-atlas-alpine
   check-changes:
     runs-on: ubuntu-latest
     outputs:
@@ -68,7 +59,7 @@ jobs:
         name: Fetch Upstream State
         run: |
           # 1. Fetch current RIPE Atlas Software Probe version
-          VERSION=$(curl -fsSL https://raw.githubusercontent.com/RIPE-NCC/ripe-atlas-software-probe/master/VERSION)
+          VERSION=$(curl -fsSL "https://raw.githubusercontent.com/RIPE-NCC/ripe-atlas-software-probe/${PROBE_REF}/VERSION")
           echo "probe_version=$VERSION" >> "$GITHUB_OUTPUT"
           # 2. Fetch Alpine Linux latest digest from Docker Hub API
           TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:library/alpine:pull" | jq -r .token)
