@@ -1,25 +1,25 @@
 # ripe-atlas-alpine
 
-English | [Español](README.es.md)
+Español | [English](README.en.md)
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/vitokosk8/ripe-atlas-alpine)](https://github.com/vitokosk8/ripe-atlas-alpine/commits/master/)
-[![GitHub License](https://img.shields.io/github/license/vitokosk8/ripe-atlas-alpine)](https://github.com/vitokosk8/ripe-atlas-alpine/blob/master/LICENSE)
+[![Último commit en GitHub](https://img.shields.io/github/last-commit/vitokosk8/ripe-atlas-alpine)](https://github.com/vitokosk8/ripe-atlas-alpine/commits/master/)
+[![Licencia en GitHub](https://img.shields.io/github/license/vitokosk8/ripe-atlas-alpine)](https://github.com/vitokosk8/ripe-atlas-alpine/blob/master/LICENSE)
 
-Docker images of RIPE Atlas Software Probe using Alpine Linux.
+Imágenes Docker de la sonda de software RIPE Atlas sobre Alpine Linux.
 
-This is a fork of [CTassisF/ripe-atlas-alpine](https://github.com/CTassisF/ripe-atlas-alpine), adapted to publish images under this account's GitHub Container Registry namespace and to build a pinned upstream revision.
+Este es un fork de [CTassisF/ripe-atlas-alpine](https://github.com/CTassisF/ripe-atlas-alpine), adaptado para publicar las imágenes en el GitHub Container Registry de esta cuenta y para compilar una revisión fija del upstream.
 
-Based on the [official code provided by RIPE NCC](https://github.com/RIPE-NCC/ripe-atlas-software-probe), with a few tweaks to make it run under Alpine Linux.
+Basado en el [código oficial proporcionado por RIPE NCC](https://github.com/RIPE-NCC/ripe-atlas-software-probe), con algunos ajustes para que funcione sobre Alpine Linux.
 
-## Images
+## Imágenes
 
-Images are published to GitHub Container Registry:
+Las imágenes se publican en GitHub Container Registry:
 
 ```
 ghcr.io/vitokosk8/ripe-atlas-alpine:latest
 ```
 
-Images are built for the following architectures:
+Las imágenes se construyen para las siguientes arquitecturas:
 
 * 386
 * amd64
@@ -30,28 +30,28 @@ Images are built for the following architectures:
 * riscv64
 * s390x
 
-## Upstream version
+## Versión del upstream
 
-The build clones the upstream RIPE NCC probe and checks out a fixed commit, defined in two places that must stay in sync:
+El build clona el probe upstream de RIPE NCC y hace checkout de un commit fijo, definido en dos sitios que deben mantenerse sincronizados:
 
-* `PROBE_REF` in the `Dockerfile` (`ARG`, default value).
-* `PROBE_REF` in `.github/workflows/docker-build.yml` (workflow `env`).
+* `PROBE_REF` en el `Dockerfile` (valor por defecto de `ARG`).
+* `PROBE_REF` en `.github/workflows/docker-build.yml` (`env` del workflow).
 
-To build another upstream release, change both values, or override the `Dockerfile` argument at build time:
+Para construir otra versión del upstream, cambia ambos valores o sobrescribe el argumento al construir:
 
 ```bash
-docker build --build-arg PROBE_REF=<tag-or-commit> -t ripe-atlas-alpine .
+docker build --build-arg PROBE_REF=<tag-o-commit> -t ripe-atlas-alpine .
 ```
 
 ## Docker
 
-Pull the latest image:
+Descarga la imagen más reciente:
 
 ```bash
 docker pull ghcr.io/vitokosk8/ripe-atlas-alpine:latest
 ```
 
-Then run the probe:
+Después, ejecuta la sonda:
 
 ```bash
 docker run --detach \
@@ -63,21 +63,21 @@ docker run --detach \
   ghcr.io/vitokosk8/ripe-atlas-alpine:latest
 ```
 
-Check if the container is running using `docker ps`, or check its logs using:
+Comprueba si el contenedor está en marcha con `docker ps`, o revisa sus logs con:
 
 ```bash
 docker logs ripe-atlas
 ```
 
-The first run will create the directory containing the probe configuration and SSH key.
+La primera ejecución creará el directorio con la configuración de la sonda y la clave SSH.
 
-Use the public SSH key `probe_key.pub` to register your probe here:
+Usa la clave pública `probe_key.pub` para registrar tu sonda aquí:
 
 https://atlas.ripe.net/apply/swprobe/
 
 ## Docker Compose
 
-The following is a minimal `docker-compose.yml` example:
+Este es un ejemplo mínimo de `docker-compose.yml`:
 
 ```yaml
 services:
@@ -92,21 +92,21 @@ services:
         target: /probe/var/spool/ripe-atlas/data
 ```
 
-Start the probe with:
+Arranca la sonda con:
 
 ```bash
 docker compose up --detach --pull always
 ```
 
-Check its status and logs with:
+Consulta su estado y sus logs con:
 
 ```bash
 docker compose ps
 docker compose logs
 ```
 
-The configuration and probe status directories are kept outside the container, while the probe's measurement data is stored in a temporary filesystem and is lost when the container is recreated.
+Los directorios de configuración y de estado de la sonda se guardan fuera del contenedor, mientras que los datos de medición se almacenan en un sistema de ficheros temporal y se pierden al recrear el contenedor.
 
-## Publishing from a fork
+## Publicar desde un fork
 
-The workflow pushes to GitHub Container Registry using the built-in `GITHUB_TOKEN`, so no extra secrets are required. Scheduled runs are disabled by default in forks; enable the workflow in the Actions tab if you want the daily upstream check.
+El workflow publica en GitHub Container Registry usando el `GITHUB_TOKEN` integrado, así que no hacen falta secretos adicionales. Las ejecuciones programadas vienen desactivadas por defecto en los forks; actívalo en la pestaña Actions si quieres la comprobación diaria del upstream.
